@@ -5,6 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@radix-ui/react-separator";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface SignInCardProps {
@@ -12,13 +13,19 @@ interface SignInCardProps {
 };
 
 export const SignInCard = ({ setState }: SignInCardProps) => {
+    const { signIn } = useAuthActions();
+
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [password, setPassword] = useState("");
     const [pending, setPending] = useState(false);
 
     const onProviderSignIn = (value: "github" | "google") => {
-
+        setPending(true);
+        signIn(value)
+            .finally(() => {
+                setPending(false);
+            })
     };
 
     return (
