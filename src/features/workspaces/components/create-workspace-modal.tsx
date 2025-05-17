@@ -11,12 +11,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+import { useCreateWorkspace } from "../api/use-create-workspace";
 import { useCreateWorkspaceModal } from "../store/use-create-workspace-modal";
 
 export const CreateWorkspaceModal = () => {
     const router = useRouter();
     const [name, setName] = useState("");
     const [open, setOpen] = useCreateWorkspaceModal();
+
+    const { mutate, isPending } = useCreateWorkspace();
 
     const handleClose = () => {
         setOpen(false);
@@ -25,6 +28,20 @@ export const CreateWorkspaceModal = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        mutate({ name }, {
+            onSuccess(id) {
+                toast.success("Workspace created");
+                router.push(`/workspace/${id}`);
+                handleClose();
+            },
+            onError(error) {
+                toast.error("Something went wrong");
+            },
+            onSettled() {
+                // Reset the form
+            }
+        })
     };
 
     return (
@@ -37,14 +54,14 @@ export const CreateWorkspaceModal = () => {
                     <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        disabled={false}
+                        disabled={isPending}
                         required
                         autoFocus
                         minLength={3}
                         placeholder="Workspace name e.g. 'Work', 'Personal', 'Home'"
                     />
                     <div className="flex justify-end">
-                        <Button disabled={false}>
+                        <Button disabled={isPending}>
                             Create
                         </Button>
                     </div>
